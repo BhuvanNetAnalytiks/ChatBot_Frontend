@@ -1,89 +1,187 @@
-// Required DOM elements
-const chatContainer = document.getElementById("chat-container");
-const chatInput = document.getElementById("chat-input");
-const chatMessages = document.getElementById("chat-messages");
-let isChatOpen = false;
+class APIHandler {
+    constructor() {
+        // Load the orchestration configuration
+        this.config = {
+            // This would be your orchestration.json content
+            steps: [
+                // ... existing configuration ...
+            ]
+        };
+    }
 
-// Initialize chatbot
+    // Function to handle different API calls
+    async handleAPICall(serviceType, params) {
+        // Find the corresponding API configuration
+        let apiConfig;
+        
+        switch(serviceType) {
+            case 'servicenow':
+                apiConfig = this.config.steps.find(step => step.function === 'create_servicenow_incident');
+                return await this.createServiceNowTicket(params, apiConfig);
+                
+            case 'zendesk':
+                apiConfig = this.config.steps.find(step => step.function === 'create_zendesk_ticket');
+                return await this.createZendeskTicket(params, apiConfig);
+                
+            case 'jira':
+                apiConfig = this.config.steps.find(step => step.function === 'create_jira_ticket');
+                return await this.createJiraTicket(params, apiConfig);
+                
+            case 'claude':
+                apiConfig = this.config.steps.find(step => step.function === 'query_claude_llm');
+                return await this.queryLLM(params, apiConfig);
+                
+            case 'gemini':
+                apiConfig = this.config.steps.find(step => step.function === 'query_gemini_llm');
+                return await this.queryLLM(params, apiConfig);
+                
+            case 'microsoft':
+                apiConfig = this.config.steps.find(step => step.function === 'get_auth_url');
+                return await this.handleMicrosoftAuth(apiConfig);
+                
+            default:
+                throw new Error('Unsupported service type');
+        }
+    }
+
+    // Individual API handlers
+    async createServiceNowTicket(params, config) {
+        try {
+            const response = await fetch(config.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    description: params.description,
+                    urgency: params.urgency,
+                    impact: params.impact
+                })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('ServiceNow API Error:', error);
+            throw error;
+        }
+    }
+
+    async createZendeskTicket(params, config) {
+        try {
+            const response = await fetch(config.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    subject: params.subject,
+                    description: params.description,
+                    priority: params.priority
+                })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Zendesk API Error:', error);
+            throw error;
+        }
+    }
+
+    async queryLLM(params, config) {
+        try {
+            const response = await fetch(config.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    question: params.question,
+                    context: params.context
+                })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('LLM API Error:', error);
+            throw error;
+        }
+    }
+
+    async handleMicrosoftAuth(config) {
+        try {
+            window.location.href = config.endpoint;
+        } catch (error) {
+            console.error('Microsoft Auth Error:', error);
+            throw error;
+        }
+    }
+}
+
+// Usage example in a chatbot interface
+class Chatbot {
+    constructor() {
+        this.apiHandler = new APIHandler();
+    }
+
+    async handleUserInput(userInput) {
+        try {
+            // Example of processing user input and determining which service to use
+            if (userInput.includes('create ticket')) {
+                // Determine which ticket system to use based on user preference or context
+                const ticketSystem = this.determineTicketSystem(userInput);
+                const params = this.extractTicketParams(userInput);
+                
+                const response = await this.apiHandler.handleAPICall(ticketSystem, params);
+                return `Ticket created successfully in ${ticketSystem}!`;
+            }
+            
+            if (userInput.includes('ask AI')) {
+                // Determine which LLM to use
+                const llmSystem = userInput.includes('claude') ? 'claude' : 'gemini';
+                const params = {
+                    question: userInput,
+                    context: "User's chat context"
+                };
+                
+                const response = await this.apiHandler.handleAPICall(llmSystem, params);
+                return response.answer;
+            }
+            
+            // Add more conditions based on your needs
+            
+        } catch (error) {
+            console.error('Error in chatbot:', error);
+            return "Sorry, I encountered an error processing your request.";
+        }
+    }
+
+    // Helper methods
+    determineTicketSystem(input) {
+        if (input.includes('servicenow')) return 'servicenow';
+        if (input.includes('zendesk')) return 'zendesk';
+        if (input.includes('jira')) return 'jira';
+        return 'servicenow'; // default
+    }
+
+    extractTicketParams(input) {
+        // Implement your logic to extract parameters from user input
+        return {
+            description: "Sample description",
+            urgency: "medium",
+            impact: "medium",
+            subject: "Sample subject",
+            priority: "medium"
+        };
+    }
+}
+
+// Example usage:
 const chatbot = new Chatbot();
 
-// Function to add message to chat
-function addMessage(message, isBot = false) {
-    const messageDiv = document.createElement("div");
-    messageDiv.className = `message ${isBot ? 'bot' : 'user'}`;
-    messageDiv.textContent = message;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+// Example function to handle user messages
+async function handleUserMessage(userMessage) {
+    const response = await chatbot.handleUserInput(userMessage);
+    // Update your UI with the response
+    console.log(response);
 }
 
-// Function to handle message sending
-async function sendMessage() {
-    const message = chatInput.value.trim();
-    if (!message) return;
-
-    // Display user message
-    addMessage(message, false);
-    chatInput.value = '';
-
-    try {
-        // Show typing indicator
-        addMessage("Processing your request...", true);
-
-        // Process message through chatbot
-        const response = await chatbot.handleUserInput(message);
-        
-        // Remove typing indicator and show response
-        chatMessages.removeChild(chatMessages.lastChild);
-        addMessage(response, true);
-
-    } catch (error) {
-        addMessage("Sorry, there was an error processing your request. Please try again.", true);
-    }
-}
-
-// Function to toggle chat window
-async function toggleChat() {
-    isChatOpen = !isChatOpen;
-    chatContainer.classList.toggle('open');
-    
-    if (isChatOpen) {
-        setTimeout(() => {
-            chatInput.focus();
-        }, 800);
-        
-        // Show welcome message with available commands
-        addMessage(`Welcome! I can help you with:
-1. Creating tickets (try "create ticket in servicenow/zendesk/jira")
-2. Asking AI (try "ask AI using claude/gemini")
-3. Microsoft authentication
-
-What would you like to do?`, true);
-    }
-}
-
-// Add command suggestions
-function addCommandSuggestions() {
-    const suggestionsDiv = document.createElement("div");
-    suggestionsDiv.className = "command-suggestions";
-    suggestionsDiv.innerHTML = `
-        <button onclick="suggestCommand('create ticket')">Create Ticket</button>
-        <button onclick="suggestCommand('ask AI')">Ask AI</button>
-        <button onclick="suggestCommand('microsoft login')">Microsoft Login</button>
-    `;
-    chatMessages.appendChild(suggestionsDiv);
-}
-
-// Function to suggest command
-function suggestCommand(command) {
-    chatInput.value = command;
-    chatInput.focus();
-}
-
-// Event listener for Enter key in input
-chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendMessage();
-    }
-});
-
-// Add these styles to your existing CSS
+// Example calls:
+handleUserMessage("create ticket in servicenow for network issue");
+handleUserMessage("ask AI using claude about JavaScript");
