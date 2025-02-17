@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetX</title>
+    <link rel="stylesheet" href="../styles/index.css">
+</head>
+<body>
+    <div class="chat-icon" onclick="toggleChat()">
+        💬
+    </div>
+    <div class="chat-container" id="chat-container">
+        <div class="chat-header">
+            <div class="chat-title">
+                <div class="chat-avatar">
+                    <img src="../images/laks.jpg" alt="Laksha">
+                </div>
+                <div>
+                    NetX
+                    <div class="chat-subtitle">Virtual Assistant</div>
+                </div>
+            </div>
+            <button class="chat-close-btn" onclick="toggleChat()">×</button>
+        </div>
+        
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will be added here dynamically -->
+            <div class="command-suggestions" id="command-suggestions">
+                <button onclick="suggestCommand('create ticket in servicenow')">ServiceNow Ticket</button>
+                <button onclick="suggestCommand('create ticket in zendesk')">Zendesk Ticket</button>
+                <button onclick="suggestCommand('create ticket in jira')">Jira Ticket</button>
+                <button onclick="suggestCommand('ask AI using claude')">Ask Claude</button>
+                <button onclick="suggestCommand('ask AI using gemini')">Ask Gemini</button>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <input 
+                type="text" 
+                id="chat-input" 
+                class="chat-input" 
+                placeholder="Type a message..."
+                autocomplete="off"
+            >
+            <button class="send-button" onclick="sendMessage()">
+                Send
+            </button>
+        </div>
+
+        <div class="chat-footer">
+            <div class="powered-by">
+                Powered by  <img src="../images/net.jpeg" alt="Company LOGO" class="footer-logo">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../scripts/index.js"></script>
+</body>
+</html>
+
+
