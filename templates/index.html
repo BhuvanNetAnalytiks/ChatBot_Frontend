@@ -26,13 +26,6 @@
         
         <div class="chat-messages" id="chat-messages">
             <!-- Messages will be added here dynamically -->
-            <div class="command-suggestions" id="command-suggestions">
-                <button onclick="suggestCommand('create ticket in servicenow')">ServiceNow Ticket</button>
-                <button onclick="suggestCommand('create ticket in zendesk')">Zendesk Ticket</button>
-                <button onclick="suggestCommand('create ticket in jira')">Jira Ticket</button>
-                <button onclick="suggestCommand('ask AI using claude')">Ask Claude</button>
-                <button onclick="suggestCommand('ask AI using gemini')">Ask Gemini</button>
-            </div>
         </div>
 
         <div class="chat-input-container">
@@ -43,7 +36,7 @@
                 placeholder="Type a message..."
                 autocomplete="off"
             >
-            <button class="send-button" onclick="sendMessage()">
+            <button class="send-button" onclick="sendMessage(); event.stopPropagation();">
                 Send
             </button>
         </div>
