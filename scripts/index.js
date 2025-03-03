@@ -368,10 +368,10 @@ function processUserMessage(message) {
     }
 }
 
-// Function to display messages in the chat
-function displayMessage(text, sender) {
+async function displayMessage(text, sender) {
     console.log(`Creating new message - Text: "${text}", Sender: ${sender}`);
     
+    // Create and display the message in the chat
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', sender);
     messageElement.textContent = text;
@@ -382,6 +382,31 @@ function displayMessage(text, sender) {
     }, 10);
     
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Send the message to the backend
+    try {
+        const baseUrl = "http://127.0.0.1:5000"; // Replace with your backend URL
+        const endpoint = `${baseUrl}/log_message`; // Replace with your API endpoint
+        const method = "POST"; // Use POST to send data
+
+        const requestBody = JSON.stringify({
+            message: text,
+            sender: sender
+        });
+
+        const response = await fetch(endpoint, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: requestBody,
+        });
+
+        const result = await response.json();
+        console.log('Message logged successfully:', result);
+    } catch (error) {
+        console.error('Error logging message:', error);
+    }
 }
 
 // Add event listener for Enter key
@@ -392,4 +417,4 @@ chatInput.addEventListener('keypress', (e) => {
 });
 
 // Log when the script loads
-console.log('Enhanced chat script initialized with ticketing and data fetching support');
+    console.log('Enhanced chat script initialized with ticketing and data fetching support');
