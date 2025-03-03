@@ -1,4 +1,3 @@
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const chatContainer = document.getElementById("chat-container");
 const chatInput = document.getElementById("chat-input");
 const chatMessages = document.getElementById("chat-messages");
