@@ -195,23 +195,22 @@ function fetchData(step) {
 function askForParameter() {
     if (parameterIndex < currentStep.parameters.length) {
         const param = currentStep.parameters[parameterIndex];
-        let promptMessage = `Please enter the value for ${param.name}:`;
-        
-        // Add helpful context for specific parameters
-        if (param.name === 'top_k') {
-            promptMessage += " (e.g., 5)";
+
+        // Auto-set urgency and impact to 2
+        if (param.name === 'urgency' || param.name === 'impact') {
+            ticketData[param.name] = 2; // Fix: Use ticketData instead of userInputs
+            parameterIndex++;
+            askForParameter();
+            return;
         }
-        
-        displayMessage(promptMessage, 'bot');
+
+        displayMessage(`Please enter the value for ${param.name}:`, 'bot');
     } else {
-        // All parameters collected, send the API request
-        if (currentStep.function.startsWith('create_')) {
-            sendTicketRequest();
-        } else if (currentStep.function === 'semantic_search_and_answer') {
-            sendDataFetchRequest();
-        }
+        console.log('Collected all parameters:', ticketData); // Debugging
+        sendTicketRequest();  // Proceed with ticket creation only when all params are collected
     }
 }
+
 
 // Function to send the ticket request
 async function sendTicketRequest() {
@@ -234,12 +233,15 @@ async function sendTicketRequest() {
         console.log(`${currentStep.function} API Response:`, result);
 
         if (response.ok) {
-            const successMessage = `Ticket created successfully! Response: ${JSON.stringify(result)}`;
+            const ticketId = result.result.number || "N/A";  // Extracting 'number' as Ticket ID
+            const systemId = result.result.sys_id || "N/A";  // Extracting 'sys_id' as System ID
+            const successMessage = `Ticket created successfully! Ticket ID: "${ticketId}" and System ID: "${systemId}"`;
             displayMessage(successMessage, 'bot');
         } else {
             console.error(`Error creating the ticket:`, result);
             displayMessage(`Error creating the ticket. ${result.error || 'Please try again later.'}`, 'bot');
         }
+        
     } catch (error) {
         console.error(`Error while creating the ticket:`, error.message);
         displayMessage("An error occurred while creating the ticket.", 'bot');
@@ -301,13 +303,13 @@ async function toggleChat() {
             if (availableTicketingSystems.length > 0) {
                 const systems = availableTicketingSystems.map(sys => sys.name).join(', ');
                 setTimeout(() => {
-                    displayMessage(`Available ticketing systems: ${systems}. You can say "create ticket" to start the process.`, 'bot');
+                    // displayMessage(`Available ticketing systems: ${systems}. You can say "create ticket" to start the process.`, 'bot');
                 }, 500);
             }
             if (availableDatabases.length > 0) {
                 const databases = availableDatabases.map(db => db.name).join(', ');
                 setTimeout(() => {
-                    displayMessage(`Available databases: ${databases}. You can say "fetch data" to start the process.`, 'bot');
+                    // displayMessage(`Available databases: ${databases}. You can say "fetch data" to start the process.`, 'bot');
                 }, 1000);
             }
         } catch (error) {
