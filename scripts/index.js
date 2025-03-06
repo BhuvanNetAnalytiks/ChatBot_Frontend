@@ -44,7 +44,7 @@ function identifyTicketingSystems(steps) {
     // Map of function names to ticketing systems
     const ticketingFunctions = {
         'create_servicenow_incident': 'ServiceNow',
-        'create_zendesk_incident': 'Zendesk',
+        'create_zendesk_ticket': 'Zendesk',
         'create_jira_incident': 'Jira'
     };
     
@@ -234,7 +234,7 @@ async function sendTicketRequest() {
         console.log(`${currentStep.function} API Response:`, result);
 
         if (response.ok) {
-            const successMessage = `Ticket created successfully! Response: ${JSON.stringify(result)}`;
+            const successMessage = `Ticket created successfully! Response: ${JSON.stringify(result.result.number)}`;
             displayMessage(successMessage, 'bot');
         } else {
             console.error(`Error creating the ticket:`, result);
