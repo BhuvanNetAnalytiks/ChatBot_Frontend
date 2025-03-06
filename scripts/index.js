@@ -267,7 +267,7 @@ async function sendDataFetchRequest() {
         console.log(`${currentStep.function} API Response:`, result);
 
         if (response.ok) {
-            const successMessage = `Data fetched successfully! Response: ${JSON.stringify(result)}`;
+            const successMessage = `Data fetched successfully! Response: ${JSON.stringify(result.result)}`;
             displayMessage(successMessage, 'bot');
         } else {
             console.error(`Error fetching data:`, result);
