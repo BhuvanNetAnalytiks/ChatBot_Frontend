@@ -1,424 +1,3 @@
-// const chatContainer = document.getElementById("chat-container");
-// const chatInput = document.getElementById("chat-input");
-// const chatMessages = document.getElementById("chat-messages");
-// let isChatOpen = false;
-// let orchestrationSteps = [];
-// let currentStep = null; 
-// let parameterIndex = 0; 
-// let ticketData = {}; 
-// let availableTicketingSystems = []; 
-// let availableDatabases = []; 
-
-// // Prevent chat from closing when clicking inside it
-// chatContainer.addEventListener('click', (e) => {
-//     e.stopPropagation();
-//     console.log('Chat container clicked, preventing propagation');
-// });
-
-// // Function to load the orchestration file
-// async function loadOrchestrationFile() {
-//     console.log('Loading Orchestration File...');
-//     try {
-//         const response = await fetch('http://127.0.0.1:5000/get_orchestration');
-//         if (!response.ok) {
-//             throw new Error(`HTTP error! status: ${response.status}`);
-//         }
-//         const data = await response.json();
-//         console.log('Orchestration file loaded successfully:', data);
-        
-//         // Identify available ticketing systems and databases
-//         identifyTicketingSystems(data.steps);
-//         identifyDatabases(data.steps);
-        
-//         return data;
-//     } catch (error) {
-//         console.error('Error loading orchestration file:', error);
-//         throw error;
-//     }
-// }
-
-// // Function to identify available ticketing systems in the orchestration steps
-// function identifyTicketingSystems(steps) {
-//     availableTicketingSystems = [];
-    
-//     // Map of function names to ticketing systems
-//     const ticketingFunctions = {
-//         'create_servicenow_incident': 'ServiceNow',
-//         'create_zendesk_ticket': 'Zendesk',
-//         'create_jira_incident': 'Jira'
-//     };
-    
-//     // Check each step to see if it's a ticketing function
-//     steps.forEach(step => {
-//         const system = ticketingFunctions[step.function];
-//         if (system && !availableTicketingSystems.includes(system)) {
-//             availableTicketingSystems.push({
-//                 name: system,
-//                 function: step.function,
-//                 step: step
-//             });
-//         }
-//     });
-    
-//     console.log('Available ticketing systems:', availableTicketingSystems.map(sys => sys.name));
-// }
-
-// // Function to identify available databases in the orchestration steps
-// function identifyDatabases(steps) {
-//     availableDatabases = [];
-    
-//     // Map of function names to databases
-//     const databaseFunctions = {
-//         'semantic_search_and_answer': 'Milvus'
-//     };
-    
-//     // Check each step to see if it's a database function
-//     steps.forEach(step => {
-//         const database = databaseFunctions[step.function];
-//         if (database && !availableDatabases.includes(database)) {
-//             availableDatabases.push({
-//                 name: database,
-//                 function: step.function,
-//                 step: step
-//             });
-//         }
-//     });
-    
-//     console.log('Available databases:', availableDatabases.map(db => db.name));
-// }
-
-// async function fetchGreeting() {
-//     try {
-//         const baseUrl = "http://127.0.0.1:5000";
-//         const endpoint = `${baseUrl}/greeting`;
-//         const method = "POST"; // Assuming the method is POST as per your JSON
-
-//         const response = await fetch(endpoint, {
-//             method: method,
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//         });
-
-//         const result = await response.json();
-//         console.log('Greeting API Response:', result);
-
-//         if (response.ok) {
-//             return result.result; // Assuming the backend returns { "greeting": "Good Morning!" }
-//         } else {
-//             console.error('Error fetching greeting:', result);
-//             return "Hello"; // Fallback greeting in case of an error
-//         }
-//     } catch (error) {
-//         console.error('Error while fetching greeting:', error.message);
-//         return "Hello"; // Fallback greeting in case of an error
-//     }
-// }
-
-// async function displayGreetingAndDefaultMessage() {
-//     const greeting = await fetchGreeting();
-//     const defaultMessage = 'How can I assist you? You can say "create ticket" or "fetch data".';
-//     const fullMessage = `${greeting} ${defaultMessage}`;
-//     displayMessage(fullMessage, 'bot');
-// }
-
-// // Function to initiate the ticket creation process
-// function initiateTicketCreation() {
-//     if (availableTicketingSystems.length === 0) {
-//         displayMessage('No ticketing systems available in the current orchestration.', 'bot');
-//         return;
-//     }
-    
-//     // If there's only one ticketing system available, use it directly
-//     if (availableTicketingSystems.length === 1) {
-//         const system = availableTicketingSystems[0];
-//         displayMessage(`Creating a ${system.name} ticket...`, 'bot');
-//         createTicket(system.step);
-//         return;
-//     }
-    
-//     // If there are multiple systems, use the first one available in this priority order:
-//     const priorityOrder = ['ServiceNow', 'Jira', 'Zendesk'];
-//     for (const priority of priorityOrder) {
-//         const system = availableTicketingSystems.find(sys => sys.name === priority);
-//         if (system) {
-//             displayMessage(`Creating a ${system.name} ticket...`, 'bot');
-//             createTicket(system.step);
-//             return;
-//         }
-//     }
-// }
-
-// // Function to create a ticket
-// function createTicket(step) {
-//     currentStep = step;
-//     parameterIndex = 0;
-//     ticketData = {}; // Reset ticketData for the new ticket creation
-    
-//     // Ask for the first parameter
-//     askForParameter();
-// }
-
-// // Function to initiate the data fetching process
-// function initiateDataFetching() {
-//     if (availableDatabases.length === 0) {
-//         displayMessage('No databases available in the current orchestration.', 'bot');
-//         return;
-//     }
-    
-//     // If there's only one database available, use it directly
-//     if (availableDatabases.length === 1) {
-//         const database = availableDatabases[0];
-//         displayMessage(`Fetching data from ${database.name}...`, 'bot');
-//         fetchData(database.step);
-//         return;
-//     }
-    
-//     // If there are multiple databases, prompt the user to select one
-//     displayMessage('Please select a database to fetch data from:', 'bot');
-//     availableDatabases.forEach((db, index) => {
-//         displayMessage(`${index + 1}. ${db.name}`, 'bot');
-//     });
-// }
-
-// // Function to fetch data from a database
-// function fetchData(step) {
-//     currentStep = step;
-//     parameterIndex = 0;
-//     ticketData = {}; // Reset ticketData for the new data fetching process
-    
-//     // Ask for the first parameter
-//     askForParameter();
-// }
-
-// // Function to ask for the next parameter
-// function askForParameter() {
-//     if (parameterIndex < currentStep.parameters.length) {
-//         const param = currentStep.parameters[parameterIndex];
-//         let promptMessage = `Please enter the value for ${param.name}:`;
-        
-//         // Add helpful context for specific parameters
-//         if (param.name === 'top_k') {
-//             promptMessage += " (e.g., 5)";
-//         }
-        
-//         displayMessage(promptMessage, 'bot');
-//     } else {                                        //
-//         // All parameters collected, send the API request
-//         if (currentStep.function.startsWith('create_')) {
-//             sendTicketRequest();
-//         } else if (currentStep.function === 'semantic_search_and_answer') {
-//             sendDataFetchRequest();
-//         }
-//     }
-// }
-
-// // Function to send the ticket request
-// async function sendTicketRequest() {
-//     try {
-//         const baseUrl = "http://127.0.0.1:5000";
-//         const endpoint = `${baseUrl}${currentStep.endpoint}`;
-//         const method = currentStep.methods[0]; // Assuming the first method is the primary one
-
-//         const requestBody = JSON.stringify(ticketData);
-
-//         const response = await fetch(endpoint, {
-//             method: method,
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: requestBody,
-//         });
-
-//         const result = await response.json();
-//         console.log(`${currentStep.function} API Response:`, result);
-
-//         if (response.ok) {
-//             const successMessage = `Ticket created successfully! Response: ${JSON.stringify(result.result.number)}`;
-//             displayMessage(successMessage, 'bot');
-//         } else {
-//             console.error(`Error creating the ticket:`, result);
-//             displayMessage(`Error creating the ticket. ${result.error || 'Please try again later.'}`, 'bot');
-//         }
-//     } catch (error) {
-//         console.error(`Error while creating the ticket:`, error.message);
-//         displayMessage("An error occurred while creating the ticket.", 'bot');
-//     }
-// }
-
-// // Function to send the data fetch request
-// async function sendDataFetchRequest() {
-//     try {
-//         const baseUrl = "http://127.0.0.1:5000";
-//         const endpoint = `${baseUrl}${currentStep.endpoint}`;
-//         const method = currentStep.methods[0]; // Assuming the first method is the primary one
-
-//         const requestBody = JSON.stringify(ticketData);
-
-//         const response = await fetch(endpoint, {
-//             method: method,
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: requestBody,
-//         });
-
-//         const result = await response.json();
-//         console.log(`${currentStep.function} API Response:`, result);
-
-//         if (response.ok) {
-//             const successMessage = `Data fetched successfully! ${JSON.stringify(result.result)}`;
-//             displayMessage(successMessage, 'bot');
-//         } else {
-//             console.error(`Error fetching data:`, result);
-//             displayMessage(`Error fetching data. ${result.error || 'Please try again later.'}`, 'bot');
-//         }
-//     } catch (error) {
-//         console.error(`Error while fetching data:`, error.message);
-//         displayMessage("An error occurred while fetching the data.", 'bot');
-//     }
-// }
-
-// // Function to toggle chat visibility
-// async function toggleChat() {
-//     isChatOpen = !isChatOpen;
-//     console.log('Chat toggled:', isChatOpen ? 'opened' : 'closed');
-    
-//     chatContainer.classList.toggle('open');
-    
-//     if (isChatOpen) {
-//         console.log('Loading Orchestration Config...');
-//         try {
-//             const data = await loadOrchestrationFile();
-//             orchestrationSteps = data.steps; // Store the steps in the global variable
-            
-//             chatMessages.innerHTML = '';
-//             console.log('Chat messages cleared');
-            
-//             displayGreetingAndDefaultMessage();
-//             console.log("Successfully loaded Orchestration Config");
-            
-//             if (availableTicketingSystems.length > 0) {
-//                 const systems = availableTicketingSystems.map(sys => sys.name).join(', ');
-//                 setTimeout(() => {
-//                     // displayMessage(`Available ticketing systems: ${systems}. You can say "create ticket" to start the process.`, 'bot');
-//                 }, 500);
-//             }
-//             if (availableDatabases.length > 0) {
-//                 const databases = availableDatabases.map(db => db.name).join(', ');
-//                 setTimeout(() => {
-//                     // displayMessage(`Available databases: ${databases}. You can say "fetch data" to start the process.`, 'bot');
-//                 }, 1000);
-//             }
-//         } catch (error) {
-//             console.error('Error loading welcome messages:', error);
-//             displayMessage("Sorry, I'm having trouble loading messages.", 'bot');
-//         }
-        
-//         setTimeout(() => {
-//             chatInput.focus();
-//             console.log('Input focused');
-//         }, 800);
-//     }
-// }
-
-// // Function to send a message
-// function sendMessage() {
-//     const messageText = chatInput.value.trim();
-//     console.log('Attempting to send message:', messageText);
-    
-//     if (messageText === "") {
-//         console.log('Empty message, ignoring');
-//         return;
-//     }
-    
-//     displayMessage(messageText, 'user');
-//     processUserMessage(messageText);
-//     chatInput.value = "";
-//     console.log('Input field cleared');
-// }
-
-// // Function to process the user message
-// function processUserMessage(message) {
-//     const normalizedMessage = message.trim().toLowerCase();
-    
-//     if (normalizedMessage.includes('create ticket')) {
-//         if (orchestrationSteps.length === 0) {
-//             displayMessage('No orchestration loaded. Please load an orchestration first.', 'bot');
-//             return;
-//         }
-//         initiateTicketCreation();
-//     } else if (normalizedMessage.includes('fetch data')) {
-//         if (orchestrationSteps.length === 0) {
-//             displayMessage('No orchestration loaded. Please load an orchestration first.', 'bot');
-//             return;
-//         }
-//         initiateDataFetching();
-//     } else if (currentStep && parameterIndex < currentStep.parameters.length) {
-//         const param = currentStep.parameters[parameterIndex];
-//         ticketData[param.name] = message;
-//         parameterIndex++;
-//         askForParameter();
-//     } else if (normalizedMessage === "hi" || normalizedMessage === "hello") {
-//         setTimeout(() => {
-//             displayMessage("Hello! I can help you create tickets or fetch data. Just say 'create ticket' or 'fetch data' to get started.", 'bot');
-//         }, 500);
-//     } else {
-//         displayGreetingAndDefaultMessage();
-//     }
-// }
-
-// async function displayMessage(text, sender) {
-//     console.log(`Creating new message - Text: "${text}", Sender: ${sender}`);
-    
-//     // Create and display the message in the chat
-//     const messageElement = document.createElement('div');
-//     messageElement.classList.add('message', sender);
-//     messageElement.textContent = text;
-//     chatMessages.appendChild(messageElement);
-    
-//     setTimeout(() => {
-//         messageElement.classList.add('visible');
-//     }, 10);
-    
-//     chatMessages.scrollTop = chatMessages.scrollHeight;
-
-//     // Send the message to the backend
-//     try {
-//         const baseUrl = "http://127.0.0.1:5000"; // Replace with your backend URL
-//         const endpoint = `${baseUrl}/log_message`; // Replace with your API endpoint
-//         const method = "POST"; // Use POST to send data
-
-//         const requestBody = JSON.stringify({
-//             message: text,
-//             sender: sender
-//         });
-
-//         const response = await fetch(endpoint, {
-//             method: method,
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: requestBody,
-//         });
-
-//         const result = await response.json();
-//         console.log('Message logged successfully:', result);
-//     } catch (error) {
-//         console.error('Error logging message:', error);
-//     }
-// }
-
-// // Add event listener for Enter key
-// chatInput.addEventListener('keypress', (e) => {
-//     if (e.key === 'Enter') {
-//         sendMessage();
-//     }
-// });
-
-// // Log when the script loads
-//     console.log('Enhanced chat script initialized with ticketing and data fetching support');
-
 
 
 const chatContainer = document.getElementById("chat-container");
@@ -439,7 +18,9 @@ let waitingForTicketDescription = false;
 let waitingForSatisfactionFeedback = false;
 let lastDepartment = null;
 let lastQuery = "";
-
+// Authentication state (persistent using localStorage)
+let isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+let userName = localStorage.getItem('userName');
 // Prevent chat from closing when clicking inside it
 chatContainer.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -560,11 +141,22 @@ async function displayGreetingAndDefaultMessage() {
     try {
         const greeting = await fetchGreeting();
         const defaultMessage = 'How can I assist you today?';
-        const fullMessage = `${greeting} ${defaultMessage}`;
-        await displayMessage(fullMessage, 'bot');
+        
+        if (!isAuthenticated) {
+            // Display initial greeting
+            await displayMessage(`${greeting} ${defaultMessage}`, 'bot');
+            // Display sign-in button as a message
+            await displaySignInButton();
+        } else {
+            // Display personalized greeting with username
+            await displayMessage(`${greeting} ${userName}! ${defaultMessage}`, 'bot');
+        }
     } catch (error) {
         console.error('Error displaying greeting:', error);
         await displayMessage("Hello! How can I assist you today?", 'bot');
+        if (!isAuthenticated) {
+            await displaySignInButton();
+        }
     }
 }
 
@@ -598,6 +190,77 @@ async function classifyDepartment(message) {
     } catch (error) {
         console.error('Error while classifying department:', error.message);
         return "IT"; // Default to IT as fallback
+    }
+}
+
+async function displaySignInButton() {
+    try {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message', 'bot');
+
+        const button = document.createElement('button');
+        button.textContent = 'Sign in with Microsoft';
+        button.style.padding = '8px 16px';
+        button.style.backgroundColor = '#0078d4';
+        button.style.color = 'white';
+        button.style.border = 'none';
+        button.style.borderRadius = '4px';
+        button.style.cursor = 'pointer';
+        
+        button.addEventListener('click', async () => {
+            try {
+                const authUrl = await fetchAuthUrl();
+                if (authUrl) {
+                    window.location.href = authUrl; // Redirect to Microsoft login
+                } else {
+                    displayMessage("Failed to initiate sign-in. Please try again.", 'bot');
+                }
+            } catch (error) {
+                console.error('Error initiating sign-in:', error);
+                displayMessage("Error starting authentication. Please try again.", 'bot');
+            }
+        });
+
+        messageElement.appendChild(button);
+        chatMessages.appendChild(messageElement);
+        
+        setTimeout(() => {
+            messageElement.classList.add('visible');
+        }, 10);
+        
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    } catch (error) {
+        console.error('Error displaying sign-in button:', error);
+        displayMessage("Error displaying sign-in option.", 'bot');
+    }
+}
+
+
+async function fetchAuthUrl() {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/microsoft/login', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log("/microsoft/login")
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.status === 'success' && data.auth_url) {
+            console.log('Auth URL fetched:', data.auth_url);
+            return data.auth_url;
+        } else {
+            console.error('Error in auth URL response:', data.error);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching auth URL:', error);
+        return null;
     }
 }
 
@@ -636,6 +299,37 @@ async function callRAG(query, department) {
         return "I couldn't find information on that. Would you like to create a ticket instead?";
     }
 }
+async function handleAuthCallback(code) {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/callback', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: code }),
+        });
+
+        console.log('Handling auth callback...');
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.status === 'success' && data.user) {
+            isAuthenticated = true;
+            userName = data.user.displayName || data.user.userPrincipalName.split('@')[0];
+            console.log('User authenticated:', userName);
+            // Greeting will be displayed by displayGreetingAndDefaultMessage
+        } else {
+            console.error('Error in callback response:', data.error);
+            displayMessage(`Authentication failed: ${data.error || 'Unknown error'}`, 'bot');
+        }
+    } catch (error) {
+        console.error('Error handling auth callback:', error);
+        displayMessage("Error completing authentication. Please try again.", 'bot');
+    }
+}
 
 // Function to initiate the ticket creation process
 function initiateTicketCreation() {
@@ -668,6 +362,8 @@ function initiateTicketCreation() {
         displayMessage("I'm sorry, I couldn't create a ticket at this time. Please try again later.", 'bot');
     }
 }
+
+
 
 // Function to create a ticket
 function createTicket(step) {
@@ -820,15 +516,32 @@ async function toggleChat() {
     chatContainer.classList.toggle('open');
     
     if (isChatOpen) {
+        // Check for callback parameters in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        if (code || error) {
+            // Clear URL parameters
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            if (error) {
+                console.error('Authentication error:', error, errorDescription);
+                displayMessage(`Authentication failed: ${errorDescription || error}`, 'bot');
+            } else if (code) {
+                await handleAuthCallback(code);
+            }
+        }
+
         console.log('Loading Orchestration Config...');
         try {
             const data = await loadOrchestrationFile();
-            orchestrationSteps = data.steps; // Store the steps in the global variable
+            orchestrationSteps = data.steps;
             
             chatMessages.innerHTML = '';
             console.log('Chat messages cleared');
             
-            // Step 1: Call get_greeting API and display greeting message
             await displayGreetingAndDefaultMessage();
             console.log("Successfully loaded Orchestration Config");
         } catch (error) {
@@ -842,7 +555,6 @@ async function toggleChat() {
         }, 800);
     }
 }
-
 // Function to send a message
 function sendMessage() {
     const messageText = chatInput.value.trim();
@@ -894,145 +606,6 @@ function resetConversationState() {
     waitingForSatisfactionFeedback = false;
 }
 
-// async function processUserMessage(message) {
-//     try {
-//         console.log(`Processing user message: "${message}"`);
-//         console.log(`Current state - waitingForTicketDescription: ${waitingForTicketDescription}, waitingForTicketConfirmation: ${waitingForTicketConfirmation}, waitingForSatisfactionFeedback: ${waitingForSatisfactionFeedback}, waitingForTicketID: ${waitingForTicketID}`);
-
-//         // Handle status check commands with better regex
-//         const statusCheck = message.match(/\b(?:status of|check the status of|what is the status of|give me the status of)\s*(INC\d+)\b/i);
-
-//         if (statusCheck) {
-//             const ticketNumber = statusCheck[1];
-//             if (ticketNumber) {
-//                 console.log(`Fetching status for ticket: ${ticketNumber}`);
-//                 try {
-//                     const status = await checkTicketStatus(ticketNumber);
-//                     // Fix the conditional check
-//                     if (status && typeof status === 'strnbdhedhing' && status.trim() !== "") {
-//                         displayMessage(`Incident Status Details:\nIncident Number: ${ticketNumber}\nStatus: ${status}`, 'bot');
-//                     } 
-//                 } catch (error) {
-//                     console.error("Error fetching ticket status:", error);
-//                     displayMessage("There was an error fetching the ticket status. Please try again later.", 'bot');
-//                 }
-//             }
-//             return;
-//         }
-
-//         // Check if we're waiting for the ticket description
-//         if (waitingForTicketDescription) {
-//             console.log("Processing ticket description input");
-//             waitingForTicketDescription = false;
-            
-//             // Store the description and immediately initiate ticket creation
-//             ticketData.description = message;
-//             initiateTicketCreation();
-//             return;
-//         }
-
-//         // Check if we're collecting parameters for a ticket
-//         if (currentStep && parameterIndex < currentStep.parameters.length) {
-//             console.log("Processing parameter input");
-//             collectParameter(message);
-//             return;
-//         }
-
-//         // Check if we're waiting for a yes/no response for ticket creation
-//         if (waitingForTicketConfirmation) {
-//             console.log("Processing ticket confirmation input");
-//             waitingForTicketConfirmation = false;
-            
-//             if (message.toLowerCase().includes('yes') || 
-//                 message.toLowerCase().includes('create') || 
-//                 message.toLowerCase().includes('ticket') || 
-//                 message.toLowerCase().includes('incident')) {
-                
-//                 displayMessage("Please describe the issue in detail.", 'bot');
-//                 waitingForTicketDescription = true;
-//             } else {
-//                 displayMessage("Glad I could assist you. Let me know if you have any other queries.", 'bot');
-//             }
-//             return;
-//         }
-
-//         // Check if we're waiting for satisfaction feedback
-//         if (waitingForSatisfactionFeedback) {
-//             console.log("Processing satisfaction feedback input");
-//             waitingForSatisfactionFeedback = false;
-
-//             if (message.toLowerCase().includes('yes')) {
-//                 displayMessage("Glad I could assist you. Let me know if you have any other queries.", 'bot');
-//             } else if (message.toLowerCase().includes('create') || 
-//                        message.toLowerCase().includes('ticket') || 
-//                        message.toLowerCase().includes('incident')) {
-//                 displayMessage("Please describe the issue in detail.", 'bot');
-//                 waitingForTicketDescription = true;
-//             } else {
-//                 displayMessage("Let me know if you need further assistance.", 'bot');
-//             }
-//             return;
-//         }
-
-//         // Store the current query for potential ticket creation
-//         lastQuery = message;
-
-//         // Direct ticket creation handling
-//         if (message.toLowerCase().includes('create ticket') || 
-//             message.toLowerCase().includes('open ticket') || 
-//             message.toLowerCase().includes('submit ticket') ||
-//             message.toLowerCase().includes('raise ticket')) {
-//             displayMessage("Please describe the issue in detail.", 'bot');
-//             waitingForTicketDescription = true;
-//             return;
-//         }
-
-//         // Step 2: Classify the department
-//         console.log("Classifying department...");
-//         const department = await classifyDepartment(message);
-//         console.log(`Classified department: ${department}`);
-//         lastDepartment = department;
-
-//         // Step 3: Process based on department classification
-//         if (department === "Greetings") {
-//             console.log("Processing as greeting");
-//             await displayGreetingAndDefaultMessage();
-//         } else if (department === "IT") {
-//             console.log("Processing as IT query");
-            
-//             const ragResponse = await callRAG(message, department);
-//             console.log(`RAG response received: "${ragResponse}"`);
-//             displayMessage(ragResponse, 'bot');
-            
-//             setTimeout(() => {
-//                 displayMessage("Is this helpful or would you like me to create an incident?", 'bot');
-//                 waitingForSatisfactionFeedback = true;
-//                 console.log("Waiting for satisfaction feedback set to true");
-//             }, 1000);
-//         } else if (department === "HR" || department === "Finance") {
-//             console.log(`Processing as ${department} query`);
-            
-//             const ragResponse = await callRAG(message, department);
-//             console.log(`RAG response received: "${ragResponse}"`);
-//             displayMessage(ragResponse, 'bot');
-//         } else {
-//             console.log("Unrecognized department, defaulting to IT");
-            
-//             const ragResponse = await callRAG(message, "IT");
-//             console.log(`RAG response received: "${ragResponse}"`);
-//             displayMessage(ragResponse, 'bot');
-            
-//             setTimeout(() => {
-//                 displayMessage("Is this helpful or would you like me to create an incident?", 'bot');
-//                 waitingForSatisfactionFeedback = true;
-//                 console.log("Waiting for satisfaction feedback set to true");
-//             }, 1000);
-//         }
-//     } catch (error) {
-//         console.error('Error processing user message:', error);
-//         displayMessage("I'm sorry, I encountered an error while processing your request. Please try again.", 'bot');
-//     }
-// }
 
 async function processUserMessage(message) {
     try {
